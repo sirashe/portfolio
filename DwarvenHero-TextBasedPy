@@ -1,0 +1,107 @@
+# The current_room variable starts the player in the Town Square
+current_room = 'Town Square'
+# The room_item variable is created to validate the value from the 'Item' key in the rooms dictionary
+room_item = 'None'
+# player_inventory creates an empty inventory list when the player starts the game
+player_inventory = []
+# valid_directions and valid_items lists are used to check that the player's input is valid
+valid_directions = ['North', 'South', 'East', 'West']
+valid_items = ['Keg', 'Sword', 'Helmet', 'Pickaxe', 'Relic', 'Diamond']
+
+
+# The player_instructions function outputs the instructions when the player starts the game
+def player_instructions():
+    print('Welcome to Dwarven Hero!'
+          '\nThe village is under threat of an army of goblins hiding out in the nearby Caverns.'
+          '\nThe lives of your fellow dwarves are at stake. You must collect the following supplies to defeat them:'
+          '\nA Keg from the Tavern, a Sword from the Blacksmith, a Helmet from the Armory,'
+          '\na Pickaxe from the Mines, a Relic from the Temple, and a Diamond from the Vault.\n'
+          '\nTo move, type: go North, go South, go East, go West.'
+          '\nTo collect an item, type: get [item name]\n')
+    print('* ' * 40)
+
+
+# The player_status function outputs the player's current inventory, current room, and any items they may see
+def player_status():
+    print(f'\nCurrent Inventory: {player_inventory}\nYou are in the {current_room}.')
+    # Only outputs a visible item if the room_item is not 'None'
+    while room_item != 'None':
+        if room_item not in player_inventory:
+            print(f'You see a {room_item}.')
+        break
+
+
+# The main function loops the gameplay
+def main():
+    # Using global variables allows the function to pull from previously created variables
+    global current_room
+    global room_item
+
+    # The rooms nested dictionary includes all possible movements and items found in each room
+    rooms = {
+            'Town Square': {
+                'Item': 'None', 'North': 'Blacksmith', 'South': 'Mines', 'East': 'Temple', 'West': 'Tavern'},
+            'Blacksmith': {'Item': 'Sword', 'South': 'Town Square', 'East': 'Armory'},
+            'Mines': {'Item': 'Pickaxe', 'North': 'Town Square', 'East': 'Caverns'},
+            'Temple': {'Item': 'Relic', 'West': 'Town Square', 'North': 'Vault'},
+            'Tavern': {'Item': 'Keg', 'East': 'Town Square'},
+            'Armory': {'Item': 'Helmet', 'West': 'Blacksmith'},
+            'Vault': {'Item': 'Diamond', 'South': 'Temple'},
+            'Caverns': {'Item': 'Goblin Army'}
+        }
+
+    # Outputs the player instructions
+    player_instructions()
+    # Loop that checks if the player is not in the Caverns, where the enemy is located
+    while current_room != 'Caverns':
+        # Outputs the player status and get player's next move
+        player_status()
+        # Splits the input and gets the last item in the string, then capitalizes the word to match the dictionary case
+        player_input = input('\nWhat would you like to do? ').split(' ')[-1].capitalize()
+        # Checks if the player's input is found in the valid directions list
+        if player_input in valid_directions:
+            # Assigns the input to the direction variable
+            direction = player_input
+            # Checks if the direction is found in the current room of the rooms dictionary
+            if direction in rooms[current_room]:
+                # Sets the current room to the value that matches the player's direction
+                current_room = rooms[current_room][direction]
+                # Sets the room_item to match the current room's 'Item' from rooms dictionary
+                room_item = rooms[current_room]['Item']
+            else:
+                # When player's input is not found in valid directions list, output an error message
+                print("\nSorry, you can't go this way.")
+        # Checks if the player input is found in the valid items list
+        elif player_input in valid_items:
+            # Assigns the input to the item variable
+            item = player_input
+            # Checks if the item is found in the current room from the rooms dictionary
+            if item in rooms[current_room]['Item']:
+                # Checks if the item is not already in the player inventory list
+                if item not in player_inventory:
+                    # Adds the item to the player inventory list
+                    player_inventory.append(item)
+                # Outputs a message telling the player they have already collected the item
+                else:
+                    print('\nYou have already collected this item.')
+        # Outputs an error message if player input is not found in either valid_directions or valid_items list
+        else:
+            print("\nSorry, that item isn't in this room.")
+    # Begins a loop to check if the current room is Caverns
+    while current_room == 'Caverns':
+        # Checks if the player has collected all 6 items
+        if len(player_inventory) == 6:
+            # Outputs win message
+            print('\nCongratulations! You collected all the items and successfully defeated the goblin army!'
+                  '\nThanks for playing!')
+            # Breaks the loop
+            break
+        # Outputs lose message
+        else:
+            print("\nOh no, you haven't collected all the items! You were defeated by the goblin army.")
+            # Breaks the loop
+            break
+
+
+# Runs the main function
+main()
